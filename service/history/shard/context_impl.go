@@ -591,6 +591,7 @@ func (s *ContextImpl) CreateWorkflowExecution(
 ) (*persistence.CreateWorkflowExecutionResponse, error) {
 	ctx, cancel, err := s.ensureMinContextTimeout(ctx)
 	if err != nil {
+		s.GetLogger().Info(fmt.Sprintf("testing where i'm cancelled: %v", err.Error()))
 		return nil, err
 	}
 	defer cancel()
