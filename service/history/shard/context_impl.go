@@ -591,7 +591,7 @@ func (s *ContextImpl) CreateWorkflowExecution(
 ) (*persistence.CreateWorkflowExecutionResponse, error) {
 	ctx, cancel, err := s.ensureMinContextTimeout(ctx)
 	if err != nil {
-		s.GetLogger().Info(fmt.Sprintf("testing where i'm cancelled: %v", err.Error()))
+		s.GetLogger().Error(fmt.Sprintf("testing where i'm cancelled: %v", err.Error()))
 		return nil, err
 	}
 	defer cancel()
@@ -601,6 +601,7 @@ func (s *ContextImpl) CreateWorkflowExecution(
 	workflowID := request.NewWorkflowSnapshot.ExecutionInfo.WorkflowId
 	namespaceEntry, err := s.GetNamespaceRegistry().GetNamespaceByID(namespaceID)
 	if err != nil {
+		s.GetLogger().Error(fmt.Sprintf("testing get namespace err: %v", err.Error()))
 		return nil, err
 	}
 
@@ -608,6 +609,7 @@ func (s *ContextImpl) CreateWorkflowExecution(
 	defer s.wUnlock()
 
 	if err := s.errorByStateLocked(); err != nil {
+		s.GetLogger().Error(fmt.Sprintf("testing state locked err: %v", err.Error()))
 		return nil, err
 	}
 
@@ -618,6 +620,7 @@ func (s *ContextImpl) CreateWorkflowExecution(
 		request.NewWorkflowSnapshot.Tasks,
 		&transferMaxReadLevel,
 	); err != nil {
+		s.GetLogger().Error(fmt.Sprintf("get tasks id err err: %v", err.Error()))
 		return nil, err
 	}
 
@@ -625,6 +628,7 @@ func (s *ContextImpl) CreateWorkflowExecution(
 	request.RangeID = currentRangeID
 	resp, err := s.executionManager.CreateWorkflowExecution(ctx, request)
 	if err = s.handleWriteErrorAndUpdateMaxReadLevelLocked(err, transferMaxReadLevel); err != nil {
+		s.GetLogger().Error(fmt.Sprintf("test handle write err: %v", err.Error()))
 		return nil, err
 	}
 	return resp, nil
