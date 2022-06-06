@@ -26,6 +26,8 @@ package workflow
 
 import (
 	"context"
+	"fmt"
+	"time"
 
 	commonpb "go.temporal.io/api/common/v1"
 	enumspb "go.temporal.io/api/enums/v1"
@@ -345,10 +347,16 @@ func createWorkflowExecutionWithRetry(
 	shard shard.Context,
 	request *persistence.CreateWorkflowExecutionRequest,
 ) (*persistence.CreateWorkflowExecutionResponse, error) {
+	defer func(startTime time.Time) {
+		shard.GetLogger().Info(fmt.Sprintf("XX-elapsed: %v", time.Now().Sub(startTime)))
+	}(time.Now())
 
 	var resp *persistence.CreateWorkflowExecutionResponse
 	op := func() error {
 		var err error
+		defer func(startTime time.Time) {
+			shard.GetLogger().Info(fmt.Sprintf("O-elapsed: %v", time.Now().Sub(startTime)))
+		}(time.Now())
 		resp, err = shard.CreateWorkflowExecution(ctx, request)
 		return err
 	}
