@@ -594,8 +594,6 @@ func (s *ContextImpl) CreateWorkflowExecution(
 		s.GetLogger().Error(fmt.Sprintf("testing where i'm cancelled: %v", err.Error()))
 		return nil, err
 	}
-	deadline, _ := ctx.Deadline()
-	s.GetLogger().Error(fmt.Sprintf("checking timeout: %v", deadline))
 	defer cancel()
 
 	// do not try to get namespace cache within shard lock
